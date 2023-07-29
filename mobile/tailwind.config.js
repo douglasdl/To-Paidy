@@ -8,7 +8,7 @@ module.exports = {
     extend: {
       colors: {
         paidy: {
-          bg: '#F6F8FA',
+          bg: '#EEF0F2',
           header: '#FFFFFF',
           logo: '#FF009C',
           logo2: '#9238B5',

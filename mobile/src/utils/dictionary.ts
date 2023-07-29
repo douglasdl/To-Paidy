@@ -6,6 +6,7 @@ export enum languages {
 
 export const words = {
     addNewTask: ["新しいタスクを追加", "Add a new task", "Adicionar nova tarefa"],
+    authenticateWithBiometrics: ['生体認証で認証', 'Authenticate with biometrics', 'Autenticar com biometria'],
     changeLanguage: ["言語変更", "CHANGE LANGUAGE", "MUDAR IDIOMA"],
     completedTasks: ["完了したタスク", "Completed Tasks", "Finalizadas"],
     confirmDelete: ["タスクを削除しますか ", "Do you want to delete the task ", "Deseja apagar a tarefa "],

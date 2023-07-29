@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Alert, FlatList, Keyboard, ScrollView, Text, TextInput, View } from 'react-native';
 import { v4 as uuidv4 } from 'uuid';
-import { AddButton } from '@components/AddButton';
 import { Task } from '@components/Task';
 import { EmptyList } from '@components/EmptyList';
 import { languages, words } from '@utils/dictionary';
 import { Summary } from './Summary';
 import { TaskInput } from './TaskInput';
+import * as LocalAuthentication from 'expo-local-authentication';
 
 export interface TaskProps {
   id: string;
@@ -55,20 +55,16 @@ const dummyTasks:TaskProps[] = [
 
 export function Main() {
 
-  const [tasks, setTasks] = useState<TaskProps[]>([])//(dummyTasks);
+  const [tasks, setTasks] = useState<TaskProps[]>(dummyTasks)//([]);
   const [taskTitle, setTaskTitle] = useState('');
   const [toggleCheckBox, setToggleCheckBox] = useState(false);
 
   const [currentLanguage, setCurrentLanguage] = useState<languages>(languages.JAPANESE);
 
-  function handleAddTask(title: string) {
+  async function handleAddTask(title: string) {
     if(title === '') {
       return Alert.alert(words.taskNotEntered[currentLanguage], words.enterTaskName[currentLanguage]);
     }
-
-    // if(tasks.includes(task => task.title === "Tarefa 1")) {
-    //     return Alert.alert(words.duplicateTask[currentLanguage], words.taskAlreadyExists[currentLanguage]);
-    // }
 
     for (const task of tasks) {
       if (task.title === title) {
@@ -76,39 +72,82 @@ export function Main() {
       }
     }
 
-    setTasks(prevState => [
+    const isAuthenticated = await authenticateWithBiometrics()
+
+    if(isAuthenticated) {
+      setTasks(prevState => [
         ...prevState,
         { 
             id: uuidv4().toString(),
             done: false,
             title: title,
         },
-    ]);
-    setTaskTitle('');
-    Keyboard.dismiss();
+      ]);
+      setTaskTitle('');
+      Keyboard.dismiss();
+    }
 }
 
-function handleToggleTask(id: string) {
-    // Check / Uncheck
-    let updatedTasks = tasks.map(task => task.id === id ? {...task, done: !task.done} : task);
-    // Sort order
-    updatedTasks = updatedTasks.sort((a, b) => a.done && b.done ? 0 : !a.done && b.done ? -1 : 1
-)
-    setTasks(updatedTasks);
-}
+  async function handleToggleTask(id: string) {
+    const isAuthenticated = await authenticateWithBiometrics()
 
-function handleDeleteTask(title: string) {
-    return Alert.alert(words.deleteTask[currentLanguage], `${words.confirmDelete[currentLanguage]} "${title}"?`, [
+    if(isAuthenticated) {
+      // Check / Uncheck
+      let updatedTasks = tasks.map(task => task.id === id ? {...task, done: !task.done} : task);
+      // Sort order
+      updatedTasks = updatedTasks.sort((a, b) => a.done && b.done ? 0 : !a.done && b.done ? -1 : 1
+  )
+      setTasks(updatedTasks);
+    }
+  }
+
+  async function handleDeleteTask(title: string) {
+    const isAuthenticated = await authenticateWithBiometrics()
+
+    if(isAuthenticated) {
+      return Alert.alert(words.deleteTask[currentLanguage], `${words.confirmDelete[currentLanguage]} "${title}"?`, [
         {
-            text: words.yes[currentLanguage],
-            onPress: () => {setTasks(prevState => prevState.filter(task => task.title !== title))}
+          text: words.yes[currentLanguage],
+          onPress: () => {setTasks(prevState => prevState.filter(task => task.title !== title))}
         },
         {
-            text: words.no[currentLanguage],
-            style: 'cancel',
+          text: words.no[currentLanguage],
+          style: 'cancel',
         },
-    ]);
-}
+      ]);
+    }
+  }
+
+  async function authenticateWithBiometrics() {
+    try {
+      const isAvailable = await LocalAuthentication.hasHardwareAsync();
+      if (!isAvailable) {
+        // console.log('Biometrics not available on this device.');
+        return false;
+      }
+  
+      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+      if (!isEnrolled) {
+        // console.log('No biometrics enrolled on this device.');
+        return false;
+      }
+  
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: words.authenticateWithBiometrics[currentLanguage],
+      });
+  
+      if (result.success) {
+        // console.log('Authentication successful!');
+        return true
+      } else {
+        // console.log('Authentication failed or canceled.');
+        return false
+      }
+    } catch (error) {
+      console.log('Error during biometric authentication:', error);
+      return false
+    }
+  }
   
   return (
     <View className='w-full flex flex-1 ml-6 mr-6 p-4 bg-paidy-bg'>
