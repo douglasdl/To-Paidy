@@ -8,7 +8,10 @@ interface IEmptyList {
 
 export function EmptyList({ language = languages.JAPANESE }: IEmptyList) {
   return (
-    <View className='flex items-center justify-center border-t-paidy-border border-t'>
+    <View 
+      className='flex items-center justify-center border-t-paidy-border border-t'
+      testID='empty-list'
+    >
       <View className='flex items-center justify-center'>
         <View className='flex items-center justify-center w-14 h-14 rounded-md mt-12 mb-4'>
           <MaterialCommunityIcons

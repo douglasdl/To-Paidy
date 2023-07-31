@@ -9,6 +9,7 @@ export function AddButton({ onAdd }: IAddButton) {
     <TouchableOpacity
       className="flex items-center justify-center w-12 h-12 bg-paidy-logo rounded-xl"
       onPress={onAdd}
+      testID="add-button"
     >
       <Text className="text-paidy-header font-extrabold text-2xl">
         ＋

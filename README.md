@@ -38,6 +38,10 @@ npm i eslint -D
 npm i babel-plugin-module-resolver -D
 npm i @types/uuid -D
 npm i react-native-svg-transformer -D
+npm i @types/jest -D
+npm i @testing-library/react-native -D
+npm i @testing-library/jest-native -D
+npm i jest-transformer-svg -D
 ```
 
 Create the tailwind.config.js:
@@ -49,3 +53,6 @@ Start the project:
 ```sh
 npx expo start
 ```
+
+- [Expo LocalAuthentication](https://docs.expo.dev/versions/latest/sdk/local-authentication/)
+- [React Native Testing Library](https://callstack.github.io/react-native-testing-library/)

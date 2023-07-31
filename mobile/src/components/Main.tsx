@@ -1,63 +1,19 @@
 import { useState } from 'react';
-import { Alert, FlatList, Keyboard, ScrollView, Text, TextInput, View } from 'react-native';
+import { Alert, FlatList, Keyboard, View } from 'react-native';
+import * as LocalAuthentication from 'expo-local-authentication';
 import { v4 as uuidv4 } from 'uuid';
 import { Task } from '@components/Task';
+import { Summary } from '@components/Summary';
 import { EmptyList } from '@components/EmptyList';
+import { TaskInput } from '@components/TaskInput';
+import { ITask } from '@utils/dummyData';
 import { languages, words } from '@utils/dictionary';
-import { Summary } from './Summary';
-import { TaskInput } from './TaskInput';
-import * as LocalAuthentication from 'expo-local-authentication';
-
-export interface TaskProps {
-  id: string;
-  done: boolean;
-  title: string;
-  onRemove?: () => void;
-}
-
-const dummyTasks:TaskProps[] = [
-  { 
-    id: '0001',
-    done: false,
-    title: '1. Implement a secured TODO list application with a bare React Native project and Expo local-authentication module.',
-  },
-  { 
-    id: '0002',
-    done: true,
-    title: '2. The application MUST ask for authentication before the user can add, update and delete items on the list.',
-  },
-  { 
-    id: '0003',
-    done: true,
-    title: '3. Clean and Robust state management.',
-  },
-  { 
-    id: '0004',
-    done: true,
-    title: '4. Remember to keep it simple so that it’s much easier for us to review your code. Do not forget to add comments explaining what your code does.',
-  },
-  { 
-    id: '0005',
-    done: true,
-    title: '5. Implement some unit tests. No need to overkill, just test the parts you think are important.',
-  },
-  { 
-    id: '0006',
-    done: true,
-    title: '6. When you are done, reply to this email with the GitHub link of your work.',
-  },
-  { 
-    id: '0007',
-    done: true,
-    title: '7. If you have additional questions or clarifications, you may do so by replying to this email.',
-  }
-] 
+import { authenticateWithBiometrics } from '@utils/authentication';
 
 export function Main() {
 
-  const [tasks, setTasks] = useState<TaskProps[]>(dummyTasks)//([]);
+  const [tasks, setTasks] = useState<ITask[]>([]);
   const [taskTitle, setTaskTitle] = useState('');
-  const [toggleCheckBox, setToggleCheckBox] = useState(false);
 
   const [currentLanguage, setCurrentLanguage] = useState<languages>(languages.JAPANESE);
 
@@ -72,7 +28,7 @@ export function Main() {
       }
     }
 
-    const isAuthenticated = await authenticateWithBiometrics()
+    const isAuthenticated = await authenticateWithBiometrics(currentLanguage)
 
     if(isAuthenticated) {
       setTasks(prevState => [
@@ -86,10 +42,10 @@ export function Main() {
       setTaskTitle('');
       Keyboard.dismiss();
     }
-}
+  }
 
   async function handleToggleTask(id: string) {
-    const isAuthenticated = await authenticateWithBiometrics()
+    const isAuthenticated = await authenticateWithBiometrics(currentLanguage)
 
     if(isAuthenticated) {
       // Check / Uncheck
@@ -102,7 +58,7 @@ export function Main() {
   }
 
   async function handleDeleteTask(title: string) {
-    const isAuthenticated = await authenticateWithBiometrics()
+    const isAuthenticated = await authenticateWithBiometrics(currentLanguage)
 
     if(isAuthenticated) {
       return Alert.alert(words.deleteTask[currentLanguage], `${words.confirmDelete[currentLanguage]} "${title}"?`, [
@@ -115,37 +71,6 @@ export function Main() {
           style: 'cancel',
         },
       ]);
-    }
-  }
-
-  async function authenticateWithBiometrics() {
-    try {
-      const isAvailable = await LocalAuthentication.hasHardwareAsync();
-      if (!isAvailable) {
-        // console.log('Biometrics not available on this device.');
-        return false;
-      }
-  
-      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-      if (!isEnrolled) {
-        // console.log('No biometrics enrolled on this device.');
-        return false;
-      }
-  
-      const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: words.authenticateWithBiometrics[currentLanguage],
-      });
-  
-      if (result.success) {
-        // console.log('Authentication successful!');
-        return true
-      } else {
-        // console.log('Authentication failed or canceled.');
-        return false
-      }
-    } catch (error) {
-      console.log('Error during biometric authentication:', error);
-      return false
     }
   }
   
