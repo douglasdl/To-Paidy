@@ -1,18 +1,17 @@
 import { useState } from 'react';
 import { Alert, FlatList, Keyboard, View } from 'react-native';
-import * as LocalAuthentication from 'expo-local-authentication';
 import { v4 as uuidv4 } from 'uuid';
 import { Task } from '@components/Task';
 import { Summary } from '@components/Summary';
 import { EmptyList } from '@components/EmptyList';
 import { TaskInput } from '@components/TaskInput';
-import { ITask } from '@utils/dummyData';
 import { languages, words } from '@utils/dictionary';
 import { authenticateWithBiometrics } from '@utils/authentication';
+import { useTasks } from '@hooks/useTasks';
 
 export function Main() {
 
-  const [tasks, setTasks] = useState<ITask[]>([]);
+  const { tasks, setTasks } = useTasks();
   const [taskTitle, setTaskTitle] = useState('');
 
   const [currentLanguage, setCurrentLanguage] = useState<languages>(languages.JAPANESE);

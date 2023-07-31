@@ -22,6 +22,7 @@ npx expo install react-native-safe-area-context
 npx expo install react-native-screens
 npx expo install react-native-svg
 npx expo install expo-local-authentication
+npx expo install @react-native-async-storage/async-storage
 npx expo install jest-expo jest
 ```
 
